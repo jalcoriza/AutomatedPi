@@ -1,0 +1,73 @@
+#!/bin/bash
+# bash script to check interface status using cron
+# by jav
+# 09/12/2017
+#
+
+echo "------------------<BEGIN AutonomousPi/cron_task1>-----------------" >> /tmp/cron-root.log
+# Setup variables
+ppp=$(/sbin/ifconfig | /bin/grep ppp0 | /usr/bin/wc -l)
+tun=$(/sbin/ifconfig | /bin/grep tun0 | /usr/bin/wc -l)
+num_def_route=$(/sbin/route -n | /bin/grep "^0.0.0.0" | /usr/bin/wc -l)
+num_def_route_eth=$(/sbin/route -n | /bin/grep "^0.0.0.0" | /bin/grep eth | /usr/bin/wc -l)
+ppp_IPADD=$(/sbin/ifconfig | /bin/grep -A 7 ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
+
+# Show general info
+echo "Running cron_task1 at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+echo "BEGIN at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+echo "Is there ppp0 interface?" >> /tmp/cron-root.log
+/sbin/ifconfig | /bin/grep ppp0 >> /tmp/cron-root.log
+echo "Is there tun0 interface?" >> /tmp/cron-root.log
+/sbin/ifconfig | /bin/grep tun0 >> /tmp/cron-root.log
+echo "How many deafult routes are there ?" >> /tmp/cron-root.log
+/sbin/route -n | /bin/grep "^0.0.0.0"  >> /tmp/cron-root.log
+echo "What is the ppp0 default gw address ?" >> /tmp/cron-root.log
+/sbin/ifconfig | /bin/grep -A 7 ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://' >> /tmp/cron-root.log
+echo "How many bytes are transmitted via ppp0 so far ?" >> /tmp/cron-root.log
+/sbin/ifconfig  | /bin/grep -A 7 "ppp0" | grep "RX bytes"  >> /tmp/cron-root.log
+
+# Show variables
+echo "Show variables"
+echo "ppp=$ppp" >> /tmp/cron-root.log
+echo "ppp_IPADD=$ppp_IPADD" >> /tmp/cron-root.log
+echo "tun=$tun" >> /tmp/cron-root.log
+echo "num_def_route=$num_def_route" >> /tmp/cron-root.log
+echo "num_def_route_eth=$num_def_route_eth" >> /tmp/cron-root.log
+
+# Run the program's logic
+if [$ppp -eq 0]
+then
+	echo "There is no ppp0 interface, so launch one (pi: ifup ppp0)" >> /tmp/cron-root.log
+#	/sbin/ifup ppp0
+	echo "and set default route (TODO: read IP address & set default route)" >> /tmp/cron-root.log
+#	ppp_IPADD = $( /sbin/ifconfig | /bin/grep ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://'
+#	/sbin/route add default gw $ppp_IPADD ppp0
+	echo "and stop & start openvpn service" >> /tmp/cron-root.log
+#	systemctl stop openvpn@client.service
+#	systemctl start openvpn@client.service
+else
+	echo "There is ppp0 interface, so everything is ok, do nothing" >> /tmp/cron-root.log
+	echo "Show default routes " >> /tmp/cron-root.log
+	/sbin/route -n | /bin/grep "^0.0.0.0"  >> /tmp/cron-root.log
+	echo "Show openvpn status " >> /tmp/cron-root.log
+	/bin/systemctl status openvpn@client.service  >> /tmp/cron-root.log
+	echo "END at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+	echo "==========================<END>=========================" >> /tmp/cron-root.log
+	exit 0
+fi
+
+if ["$num_def_route_eth" -eq "0"]
+then
+	echo "There is no eth0 default route, so do nothing" >> /tmp/cron-root.log
+else
+	echo "There is a eth0 default route, so delete it (pi: route del default gw 192.168.1.1 eth0)" >> /tmp/cron-root.log
+#	/sbin/route del default gw 192.168.1.1 eth0
+fi
+
+echo "Show default routes " >> /tmp/cron-root.log
+/sbin/route -n | /bin/grep "^0.0.0.0"  >> /tmp/cron-root.log
+echo "Show openvpn status " >> /tmp/cron-root.log
+/bin/systemctl status openvpn@client.service  >> /tmp/cron-root.log
+echo "END at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+echo "==========================<END>=========================" >> /tmp/cron-root.log
+
