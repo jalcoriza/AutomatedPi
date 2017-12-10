@@ -39,7 +39,15 @@ if [ $ppp -eq  0 ]
 then
 	echo "There is no ppp0 interface, so launch one (pi: ifup ppp0)" >> /tmp/cron-root.log
 	/sbin/ifup ppp0
-	sleep 5
+	echo "timestamp $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+	ppp_IPADD = $( /sbin/ifconfig | /bin/grep ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
+	echo "ppp_IPADD=$ppp_IPADD" >> /tmp/cron-root.log
+	echo "go to bed for 60 secs" >> /tmp/cron-root.log
+	sleep 60
+	echo "wake up" >> /tmp/cron-root.log
+	echo "timestamp $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+	ppp_IPADD = $( /sbin/ifconfig | /bin/grep ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
+	echo "ppp_IPADD=$ppp_IPADD" >> /tmp/cron-root.log
 	echo "and set default route (TODO: read IP address & set default route)" >> /tmp/cron-root.log
 	ppp_IPADD = $( /sbin/ifconfig | /bin/grep ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
 	/sbin/route add default gw $ppp_IPADD ppp0
