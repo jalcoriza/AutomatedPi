@@ -39,11 +39,13 @@ if [ $ppp -eq  0 ]
 then
 	echo "There is no ppp0 interface, so launch one (pi: ifup ppp0)" >> /tmp/cron-root.log
 	/sbin/ifup ppp0
+	sleep 5
 	echo "and set default route (TODO: read IP address & set default route)" >> /tmp/cron-root.log
-	ppp_IPADD = $( /sbin/ifconfig | /bin/grep ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://'
+	ppp_IPADD = $( /sbin/ifconfig | /bin/grep ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
 	/sbin/route add default gw $ppp_IPADD ppp0
 	echo "and stop & start openvpn service" >> /tmp/cron-root.log
 	systemctl stop openvpn@client.service
+	delay 5
 	systemctl start openvpn@client.service
 else
 	echo "There is ppp0 interface, so everything is ok, do nothing" >> /tmp/cron-root.log
