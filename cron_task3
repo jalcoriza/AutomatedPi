@@ -1,0 +1,37 @@
+#!/bin/bash
+# bash script to check interface status using cron
+# by jav
+# 10th April 2020 
+#
+
+echo "============<BEGIN AutonomousPi/cron_task3>===============" >> /tmp/cron-root.log
+# Setup variables
+ppp=$(/sbin/ifconfig | /bin/grep ppp0 | /usr/bin/wc -l)
+tun=$(/sbin/ifconfig | /bin/grep tun0 | /usr/bin/wc -l)
+wlan=$(/sbin/ifconfig | /bin/grep wlan0 | /usr/bin/wc -l)
+num_def_route=$(/sbin/route -n | /bin/grep "^0.0.0.0" | /usr/bin/wc -l)
+num_def_route_eth=$(/sbin/route -n | /bin/grep "^0.0.0.0" | /bin/grep eth | /usr/bin/wc -l)
+ppp_IPADD=$(/sbin/ifconfig | /bin/grep -A 7 ppp0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
+wlan_IPADD=$(/sbin/ifconfig | /bin/grep -A 7 wlan0 | /usr/bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
+
+# Show general info
+echo "Running cron_task3 at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+echo "BEGIN at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+
+# Show variables
+echo "Show variables" >> /tmp/cron-roo.log
+echo "num_def_route=$num_def_route" >> /tmp/cron-root.log
+echo "num_def_route_eth=$num_def_route_eth" >> /tmp/cron-root.log
+
+
+echo "Show default routes " >> /tmp/cron-root.log
+/sbin/route -n | /bin/grep "^0.0.0.0"  >> /tmp/cron-root.log
+echo "Show isc-dhcp-server status " >> /tmp/cron-root.log
+/bin/systemctl status isc-dhcp-server.service  >> /tmp/cron-root.log
+echo "Restart isc-dhcp-server " >> /tmp/cron-root.log
+/bin/systemctl restart isc-dhcp-server.service  >> /tmp/cron-root.log
+echo "Show isc-dhcp-server status " >> /tmp/cron-root.log
+/bin/systemctl status isc-dhcp-server.service  >> /tmp/cron-root.log
+echo "END at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
+echo "==========================<END>=========================" >> /tmp/cron-root.log
+
