@@ -19,7 +19,7 @@ echo "Running cron_task3 at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
 echo "BEGIN at $(date +%Y-%m-%d_%Hh%Mm)" >> /tmp/cron-root.log
 
 # Show variables
-echo "Show variables" >> /tmp/cron-roo.log
+echo "Show variables" >> /tmp/cron-root.log
 echo "num_def_route=$num_def_route" >> /tmp/cron-root.log
 echo "num_def_route_eth=$num_def_route_eth" >> /tmp/cron-root.log
 
