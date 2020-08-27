@@ -1,0 +1,2 @@
+@reboot sleep 60 && /home/pi/Projects/AutomatedPi/cron_task3
+0 6 * * * /home/pi/Projects/AutomatedPi/cron_task2
